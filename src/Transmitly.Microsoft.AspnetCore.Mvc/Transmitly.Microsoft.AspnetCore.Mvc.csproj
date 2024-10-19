@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>$(TargetFrameworks);net8.0</TargetFrameworks>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<IsPackable>true</IsPackable>
+		<AssemblyVersion>0.0.1</AssemblyVersion>
+		<AssemblyFileVersion>0.0.1</AssemblyFileVersion>
+		<PackageId>Transmitly.Microsoft.AspnetCore.Mvc</PackageId>
+		<Product>Transmitly</Product>
+		<ProductName>Transmit.ly</ProductName>
+		<Company>Code Impressions</Company>
+		<Title>Transmit.ly Microsoft.AspnetCore.Mvc utilties.</Title>
+		<Description>A utility project for manaing channel provider requests for the Transmitly communications library.</Description>
+		<Copyright>Copyright (c) Code Impressions, LLC</Copyright>
+		<Authors>Code Impressions</Authors>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageIcon>icon-dark.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/transmitly/transmitly-microsoft-aspnetcore-mvc.git</RepositoryUrl>
+		<PackageTags>mvc transmitly</PackageTags>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\assets\icon-dark.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="Transmitly" Version="0.1.0-211.ec126bc" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+		<PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup>
+	</ItemGroup>
+</Project>
+

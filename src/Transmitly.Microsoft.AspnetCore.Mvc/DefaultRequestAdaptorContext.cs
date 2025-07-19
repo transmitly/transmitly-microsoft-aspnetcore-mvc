@@ -15,48 +15,51 @@
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Transmitly.Delivery;
+using Transmitly.Util;
 
 namespace Transmitly.Microsoft.Aspnet.Mvc;
 
 class DefaultRequestAdaptorContext(HttpRequest request) : IRequestAdaptorContext
 {
-    private readonly HttpRequest _httpRequest = Guard.AgainstNull(request);
+	private readonly HttpRequest _httpRequest = Guard.AgainstNull(request);
 
-    public string? GetQueryValue(string key)
-    {
-        if (_httpRequest.Query.TryGetValue(key, out var result))
-            return result.ToString();
-        return null;
-    }
-    public string? GetFormValue(string key)
-    {
-        if (_httpRequest.Form.TryGetValue(key, out var formResult))
-            return formResult.ToString();
-        return null;
-    }
+	public string? GetQueryValue(string key)
+	{
+		if (_httpRequest.Query.TryGetValue(key, out var result))
+			return result.ToString();
+		return null;
+	}
+	public string? GetFormValue(string key)
+	{
+		if (_httpRequest.Form.TryGetValue(key, out var formResult))
+			return formResult.ToString();
+		return null;
+	}
 
-    public string? GetHeaderValue(string key)
-    {
-        if (_httpRequest.Headers.TryGetValue(key, out var headersResult))
-            return headersResult.ToString();
-        return null;
-    }
+	public string? GetHeaderValue(string key)
+	{
+		if (_httpRequest.Headers.TryGetValue(key, out var headersResult))
+			return headersResult.ToString();
+		return null;
+	}
 
-    public string? GetValue(string key)
-    {
-        if (_httpRequest.Query.TryGetValue(key, out var result))
-            return result.ToString();
-        if (_httpRequest.Form.TryGetValue(key, out var formResult))
-            return formResult.ToString();
-        if (_httpRequest.Headers.TryGetValue(key, out var headersResult))
-            return headersResult.ToString();
+	public string? GetValue(string key)
+	{
+		if (_httpRequest.Query.TryGetValue(key, out var result))
+			return result.ToString();
+		if (_httpRequest.Form.TryGetValue(key, out var formResult))
+			return formResult.ToString();
+		if (_httpRequest.Headers.TryGetValue(key, out var headersResult))
+			return headersResult.ToString();
 
-        return null;
-    }
+		return null;
+	}
 
-    public string? Content { get; } = new StreamReader(request.BodyReader.AsStream()).ReadToEnd();
+	public string? Content { get; } = new StreamReader(request.BodyReader.AsStream()).ReadToEnd();
 
-    public string? PipelineName => GetValue(DeliveryUtil.PipelineNameKey);
+	public string? PipelineIntent => GetValue(DeliveryUtil.PipelineIntentKey);
 
-    public string? ResourceId => GetValue(DeliveryUtil.ResourceIdKey);
+	public string? PipelineId => GetValue(DeliveryUtil.PipelineIdKey);
+
+	public string? ResourceId => GetValue(DeliveryUtil.ResourceIdKey);
 }

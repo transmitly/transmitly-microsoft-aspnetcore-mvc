@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Transmitly.Delivery;
 using System.Linq;
+using Transmitly.Util;
 
 namespace Transmitly;
 
@@ -25,28 +26,28 @@ namespace Transmitly;
 /// <param name="communicationsClient">Communications client.</param>
 public abstract class ChannelProviderDeliveryReportController(ICommunicationsClient communicationsClient) : ControllerBase
 {
-    private readonly ICommunicationsClient _communicationsClient = Guard.AgainstNull(communicationsClient);
+	private readonly ICommunicationsClient _communicationsClient = Guard.AgainstNull(communicationsClient);
 
-    /// <summary>
-    /// Handle an incoming channel provider delivery report. Default behavior triggers delivery report handlers.
-    /// </summary>
-    /// <param name="request">Channel provider delivery report.</param>
-    /// <returns>OK; Otherwise BadRequest with errors.</returns>
-    [HttpPost]
-    public virtual ActionResult HandleDeliveryReport(ChannelProviderDeliveryReportRequest request)
-    {
-        if (ModelState.IsValid && request != null && request.DeliveryReports != null)
-        {
-            _communicationsClient.DeliverReports(request.DeliveryReports);
-            return Ok();
-        }
+	/// <summary>
+	/// Handle an incoming channel provider delivery report. Default behavior triggers delivery report handlers.
+	/// </summary>
+	/// <param name="request">Channel provider delivery report.</param>
+	/// <returns>OK; Otherwise BadRequest with errors.</returns>
+	[HttpPost]
+	public virtual ActionResult HandleDeliveryReport(ChannelProviderDeliveryReportRequest request)
+	{
+		if (ModelState.IsValid && request != null && request.DeliveryReports != null)
+		{
+			_communicationsClient.DispatchAsync(request.DeliveryReports);
+			return Ok();
+		}
 
-        var errorString = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors));
-        return StatusCode((int)HttpStatusCode.InternalServerError, new ProblemDetails
-        {
-            Detail = errorString,
-            Status = (int)HttpStatusCode.InternalServerError,
-            Title = "Unexpected Error"
-        });
-    }
+		var errorString = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors));
+		return StatusCode((int)HttpStatusCode.InternalServerError, new ProblemDetails
+		{
+			Detail = errorString,
+			Status = (int)HttpStatusCode.InternalServerError,
+			Title = "Unexpected Error"
+		});
+	}
 }

@@ -13,20 +13,20 @@
 //  limitations under the License.
 
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
 using Transmitly.ChannelProvider.Configuration;
 using Transmitly.Delivery;
+using Transmitly.Util;
 
 namespace Transmitly.Microsoft.Aspnet.Mvc;
 
-sealed class ChannelProviderModelBinderProvider(IChannelProviderFactory channelProviderFactory) : IModelBinderProvider
+sealed class ChannelProviderModelBinderProvider() : IModelBinderProvider
 {
-    private readonly IChannelProviderFactory _channelProviderFactory = Guard.AgainstNull(channelProviderFactory);
-
-    public IModelBinder? GetBinder(ModelBinderProviderContext context)
-    {
-        Guard.AgainstNull(context);
-        if (context.Metadata.ModelType == typeof(ChannelProviderDeliveryReportRequest))
-            return new ChannelProviderDeliveryReportRequestModelBinder(_channelProviderFactory);
-        return null;
-    }
+	public IModelBinder? GetBinder(ModelBinderProviderContext context)
+	{
+		Guard.AgainstNull(context);
+		if (context.Metadata.ModelType == typeof(ChannelProviderDeliveryReportRequest))
+			return new ChannelProviderDeliveryReportRequestModelBinder(context.Services.GetRequiredService<IChannelProviderFactory>());
+		return null;
+	}
 }

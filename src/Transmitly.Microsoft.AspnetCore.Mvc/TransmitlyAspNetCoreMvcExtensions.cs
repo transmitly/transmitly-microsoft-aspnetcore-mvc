@@ -12,11 +12,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-using Transmitly.ChannelProvider.Configuration;
 using Transmitly.Microsoft.Aspnet.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Transmitly;
 
@@ -25,12 +22,11 @@ namespace Transmitly;
 /// </summary>
 public static class TransmitlyAspNetMvcExtensions
 {
-    /// <summary>
-    /// Adds the transmitly channel provider delivery report model binder.
-    /// </summary>
-    /// <param name="services">Service collection.</param>
-    public static void AddChannelProviderDeliveryReportModelBinders(this IServiceCollection services)
-    {
-        services.AddSingleton<IConfigureOptions<MvcOptions>, ChannelProviderAdaptorModelBinder>();
-    }
+	/// <summary>
+	/// Adds the transmitly channel provider delivery report model binder.
+	/// </summary>
+	public static void AddTransmitlyDeliveryReportModelBinders(this MvcOptions options)
+	{
+		options.ModelBinderProviders.Insert(0, new ChannelProviderModelBinderProvider());
+	}
 }

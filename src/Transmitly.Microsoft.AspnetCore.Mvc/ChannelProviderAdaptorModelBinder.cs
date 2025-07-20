@@ -14,16 +14,14 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Transmitly.ChannelProvider.Configuration;
 
 namespace Transmitly.Microsoft.Aspnet.Mvc;
 
-sealed class ChannelProviderAdaptorModelBinder(IChannelProviderFactory channelProviderFactory) : IConfigureOptions<MvcOptions>
+sealed class ChannelProviderAdaptorModelBinder() : IConfigureOptions<MvcOptions>
 {
-    private readonly IChannelProviderFactory _channelProviderFactory = Guard.AgainstNull(channelProviderFactory);
 
-    public void Configure(MvcOptions options)
-    {
-        options.ModelBinderProviders.Insert(0, new ChannelProviderModelBinderProvider(_channelProviderFactory));
-    }
+	public void Configure(MvcOptions options)
+	{
+		options.ModelBinderProviders.Insert(0, new ChannelProviderModelBinderProvider());
+	}
 }

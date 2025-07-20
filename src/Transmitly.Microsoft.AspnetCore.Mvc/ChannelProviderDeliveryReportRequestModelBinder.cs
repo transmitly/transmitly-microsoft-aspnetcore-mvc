@@ -24,33 +24,33 @@ namespace Transmitly.Microsoft.Aspnet.Mvc;
 
 class ChannelProviderDeliveryReportRequestModelBinder : IModelBinder
 {
-    private readonly List<Lazy<IChannelProviderDeliveryReportRequestAdaptor>> _adaptorInstances;
+	private readonly List<Lazy<IChannelProviderDeliveryReportRequestAdaptor>> _adaptorInstances;
 
-    public ChannelProviderDeliveryReportRequestModelBinder(IChannelProviderFactory adaptor)
-    {
-        var adaptors = AsyncHelper.RunSync(adaptor.GetAllDeliveryReportRequestAdaptorsAsync);
-        _adaptorInstances = adaptors.Select(s => new Lazy<IChannelProviderDeliveryReportRequestAdaptor>(AsyncHelper.RunSync(() => adaptor.ResolveDeliveryReportRequestAdaptorAsync(s)))).ToList();
-    }
+	public ChannelProviderDeliveryReportRequestModelBinder(IChannelProviderFactory adaptor)
+	{
+		var adaptors = AsyncHelper.RunSync(adaptor.GetAllDeliveryReportRequestAdaptorsAsync);
+		_adaptorInstances = adaptors.Select(s => new Lazy<IChannelProviderDeliveryReportRequestAdaptor>(AsyncHelper.RunSync(() => adaptor.ResolveDeliveryReportRequestAdaptorAsync(s)))).ToList();
+	}
 
-    public async Task BindModelAsync(ModelBindingContext bindingContext)
-    {
+	public async Task BindModelAsync(ModelBindingContext bindingContext)
+	{
 
-        foreach (var adaptor in _adaptorInstances)
-        {
-            try
-            {
-                var handled = await adaptor.Value.AdaptAsync(new DefaultRequestAdaptorContext(bindingContext.HttpContext.Request));
-                if (handled != null)
-                {
-                    bindingContext.Result = ModelBindingResult.Success(new ChannelProviderDeliveryReportRequest(handled));
-                    return;
-                }
-            }
-            catch
-            {
-                //Eat any unexpected adaptor exceptions
-            }
-        }
-        bindingContext.Result = ModelBindingResult.Failed();
-    }
+		foreach (var adaptor in _adaptorInstances)
+		{
+			try
+			{
+				var handled = await adaptor.Value.AdaptAsync(new DefaultRequestAdaptorContext(bindingContext.HttpContext.Request));
+				if (handled != null)
+				{
+					bindingContext.Result = ModelBindingResult.Success(new ChannelProviderDeliveryReportRequest(handled));
+					return;
+				}
+			}
+			catch
+			{
+				//Eat any unexpected adaptor exceptions
+			}
+		}
+		bindingContext.Result = ModelBindingResult.Failed();
+	}
 }

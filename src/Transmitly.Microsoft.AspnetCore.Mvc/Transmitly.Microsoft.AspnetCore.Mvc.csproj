@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net9.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net6.0;net9.0;net8.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<IsPackable>true</IsPackable>
@@ -11,7 +11,7 @@
 		<ProductName>Transmit.ly</ProductName>
 		<Company>Code Impressions</Company>
 		<Title>Transmit.ly Microsoft.AspnetCore.Mvc utilties.</Title>
-		<Description>A utility project for manaing channel provider requests for the Transmitly communications library.</Description>
+		<Description>A utility project for managing channel provider delivery requests for the Transmitly communications library.</Description>
 		<Copyright>Copyright (c) Code Impressions, LLC</Copyright>
 		<Authors>Code Impressions</Authors>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -36,7 +36,7 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="All" />
-		<PackageReference Include="Transmitly" Version="0.2.0" />
+		<PackageReference Include="Transmitly" Version="0.2.1" />
 	</ItemGroup>
 </Project>
 

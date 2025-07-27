@@ -19,8 +19,13 @@ using Transmitly;
 {
 	var builder = WebApplication.CreateBuilder(args);
 	builder.Services
-		.AddTransmitly(tly => {...})
-		.AddChannelProviderDeliveryReportModelBinders()
+	.AddControllers(options =>
+	{
+		//Adds the necessary model binders to handle channel provider specific webhooks (Twilio, Infobip, etc)
+		//and convert them to delivery reports
+		options.AddTransmitlyDeliveryReportModelBinders();
+	})
+	.AddTransmitly(tly => {...});
 }
 ```
 
@@ -50,7 +55,15 @@ namespace Transmitly.Aspnet.Mvc.Examples
 	}
 }
 ```
-
+Or if you prefer to implement it yourself
+```csharp
+[HttpPost("channel/provider/update", Name = "DeliveryReport")]
+public IActionResult ChannelProviderDeliveryReport(ChannelProviderDeliveryReportRequest providerReport)
+{
+	_communicationsClient.DispatchAsync(providerReport.DeliveryReports);
+	return Ok();
+}
+```
 * See the [Transmitly](https://github.com/transmitly/transmitly) project for more details on how use and configure the library.
 
 

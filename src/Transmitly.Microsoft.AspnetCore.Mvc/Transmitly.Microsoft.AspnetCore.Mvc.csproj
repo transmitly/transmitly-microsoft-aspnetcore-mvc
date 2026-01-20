@@ -36,7 +36,7 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="All" />
-		<PackageReference Include="Transmitly" Version="0.2.1" />
+		<PackageReference Include="Transmitly" Version="0.2.2-39.19f2783" />
 	</ItemGroup>
 </Project>
 

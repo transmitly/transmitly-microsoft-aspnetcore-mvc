@@ -13,15 +13,20 @@
 //  limitations under the License.
 
 using Microsoft.AspNetCore.Http;
-using System.IO;
 using Transmitly.Delivery;
 using Transmitly.Util;
 
 namespace Transmitly.Microsoft.Aspnet.Mvc;
 
-class DefaultRequestAdaptorContext(HttpRequest request) : IRequestAdaptorContext
+class DefaultRequestAdaptorContext : IRequestAdaptorContext
 {
-	private readonly HttpRequest _httpRequest = Guard.AgainstNull(request);
+	private readonly HttpRequest _httpRequest;
+
+	public DefaultRequestAdaptorContext(HttpRequest request, string? content = null)
+	{
+		_httpRequest = Guard.AgainstNull(request);
+		Content = content;
+	}
 
 	public string? GetQueryValue(string key)
 	{
@@ -31,7 +36,7 @@ class DefaultRequestAdaptorContext(HttpRequest request) : IRequestAdaptorContext
 	}
 	public string? GetFormValue(string key)
 	{
-		if (_httpRequest.Form.TryGetValue(key, out var formResult))
+		if (_httpRequest.HasFormContentType && _httpRequest.Form.TryGetValue(key, out var formResult))
 			return formResult.ToString();
 		return null;
 	}
@@ -47,7 +52,7 @@ class DefaultRequestAdaptorContext(HttpRequest request) : IRequestAdaptorContext
 	{
 		if (_httpRequest.Query.TryGetValue(key, out var result))
 			return result.ToString();
-		if (_httpRequest.Form.TryGetValue(key, out var formResult))
+		if (_httpRequest.HasFormContentType && _httpRequest.Form.TryGetValue(key, out var formResult))
 			return formResult.ToString();
 		if (_httpRequest.Headers.TryGetValue(key, out var headersResult))
 			return headersResult.ToString();
@@ -55,7 +60,7 @@ class DefaultRequestAdaptorContext(HttpRequest request) : IRequestAdaptorContext
 		return null;
 	}
 
-	public string? Content { get; } = new StreamReader(request.BodyReader.AsStream()).ReadToEnd();
+	public string? Content { get; }
 
 	public string? PipelineIntent => GetValue(DeliveryUtil.PipelineIntentKey);
 

@@ -1,4 +1,4 @@
-﻿// ﻿﻿Copyright (c) Code Impressions, LLC. All Rights Reserved.
+﻿// Copyright (c) Code Impressions, LLC. All Rights Reserved.
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License")
 //  you may not use this file except in compliance with the License.
@@ -18,15 +18,9 @@ using Transmitly.Util;
 
 namespace Transmitly.Microsoft.Aspnet.Mvc;
 
-class DefaultRequestAdaptorContext : IRequestAdaptorContext
+class DefaultRequestAdaptorContext(HttpRequest request, string? content = null) : IRequestAdaptorContext
 {
-	private readonly HttpRequest _httpRequest;
-
-	public DefaultRequestAdaptorContext(HttpRequest request, string? content = null)
-	{
-		_httpRequest = Guard.AgainstNull(request);
-		Content = content;
-	}
+	private readonly HttpRequest _httpRequest = Guard.AgainstNull(request);
 
 	public string? GetQueryValue(string key)
 	{
@@ -60,7 +54,7 @@ class DefaultRequestAdaptorContext : IRequestAdaptorContext
 		return null;
 	}
 
-	public string? Content { get; }
+	public string? Content { get; } = content;
 
 	public string? PipelineIntent => GetValue(DeliveryUtil.PipelineIntentKey);
 

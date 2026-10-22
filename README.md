@@ -4,13 +4,13 @@ A [Transmitly](https://github.com/transmitly/transmitly) utility package for han
 
 ### Getting started
 
-To use install the [NuGet package](https://github.com/transmitly/transmitly-microsoft-aspnetcore-mvc):
+To use install the [NuGet package](https://www.nuget.org/packages/Transmitly.Microsoft.AspnetCore.Mvc):
 
 ```shell
 dotnet add package Transmitly.Microsoft.AspnetCore.Mvc
 ```
 
-Then add the model binders using `AddChannelProviderDeliveryReportModelBinders()`:
+Then add the model binders using `AddTransmitlyDeliveryReportModelBinders()`:
 
 ```csharp
 using Transmitly;
@@ -39,14 +39,14 @@ The `HandleDeliveryReport` method can be overridden. Allowing you to customize b
 
 MyDeliveryReportsController.cs
 ```csharp 
-using System;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Transmitly;
-using Transmitly.Delivery;
 
-namespace Transmitly.Aspnet.Mvc.Examples
+namespace MyApp.Controllers
 {
 	[AllowAnonymous]
+	[Route("[controller]/[action]")]
 	public class CommunicationsController : ChannelProviderDeliveryReportController
 	{
 		public CommunicationsController(ICommunicationsClient communicationsClient) : base(communicationsClient)
@@ -55,7 +55,9 @@ namespace Transmitly.Aspnet.Mvc.Examples
 	}
 }
 ```
-Or if you prefer to implement it yourself
+The `[Route]` attribute is needed when controllers are mapped with `app.MapControllers()`. With conventional routing (`app.MapDefaultControllerRoute()`), it can be omitted.
+
+Or if you prefer to implement it yourself (`ChannelProviderDeliveryReportRequest` is in the `Transmitly.Delivery` namespace)
 ```csharp
 [HttpPost("channel/provider/update", Name = "DeliveryReport")]
 public IActionResult ChannelProviderDeliveryReport(ChannelProviderDeliveryReportRequest providerReport)

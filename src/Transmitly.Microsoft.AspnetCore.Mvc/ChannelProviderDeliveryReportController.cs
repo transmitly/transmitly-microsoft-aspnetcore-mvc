@@ -32,7 +32,7 @@ public abstract class ChannelProviderDeliveryReportController(ICommunicationsCli
 	/// Handle an incoming channel provider delivery report. Default behavior triggers delivery report handlers.
 	/// </summary>
 	/// <param name="request">Channel provider delivery report.</param>
-	/// <returns>OK; Otherwise BadRequest with errors.</returns>
+	/// <returns>OK; Forbidden when the provider's signature check fails; otherwise an error.</returns>
 	[HttpPost]
 	public virtual ActionResult HandleDeliveryReport(ChannelProviderDeliveryReportRequest request)
 	{
@@ -41,6 +41,9 @@ public abstract class ChannelProviderDeliveryReportController(ICommunicationsCli
 			_communicationsClient.DispatchAsync(request.DeliveryReports);
 			return Ok();
 		}
+
+		if (ModelState.Values.SelectMany(v => v.Errors).Any(e => e.Exception is DeliveryReportRequestValidationException))
+			return StatusCode((int)HttpStatusCode.Forbidden);
 
 		var errorString = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors));
 		return StatusCode((int)HttpStatusCode.InternalServerError, new ProblemDetails

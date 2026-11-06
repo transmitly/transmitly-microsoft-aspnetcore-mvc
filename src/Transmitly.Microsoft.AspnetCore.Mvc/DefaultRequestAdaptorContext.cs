@@ -13,6 +13,8 @@
 //  limitations under the License.
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using System;
 using Transmitly.Delivery;
 using Transmitly.Util;
 
@@ -42,23 +44,20 @@ class DefaultRequestAdaptorContext(HttpRequest request, string? content = null) 
 		return null;
 	}
 
-	public string? GetValue(string key)
+	[Obsolete("Use GetQueryValue, GetFormValue, or GetHeaderValue instead.", true)]
+	string? IRequestAdaptorContext.GetValue(string key)
 	{
-		if (_httpRequest.Query.TryGetValue(key, out var result))
-			return result.ToString();
-		if (_httpRequest.HasFormContentType && _httpRequest.Form.TryGetValue(key, out var formResult))
-			return formResult.ToString();
-		if (_httpRequest.Headers.TryGetValue(key, out var headersResult))
-			return headersResult.ToString();
-
-		return null;
+		throw new NotSupportedException("Use GetQueryValue, GetFormValue, or GetHeaderValue instead.");
 	}
 
-	public string? Content { get; } = content;
+	public string? Content => content;
 
-	public string? PipelineIntent => GetValue(DeliveryUtil.PipelineIntentKey);
+	// Reflects X-Forwarded-* when the app uses ForwardedHeaders middleware; otherwise set the provider's public URL option.
+	public string? RequestUrl => _httpRequest.GetEncodedUrl();
 
-	public string? PipelineId => GetValue(DeliveryUtil.PipelineIdKey);
+	public string? PipelineIntent => GetQueryValue(DeliveryUtil.PipelineIntentKey);
 
-	public string? ResourceId => GetValue(DeliveryUtil.ResourceIdKey);
+	public string? PipelineId => GetQueryValue(DeliveryUtil.PipelineIdKey);
+
+	public string? ResourceId => GetQueryValue(DeliveryUtil.ResourceIdKey);
 }

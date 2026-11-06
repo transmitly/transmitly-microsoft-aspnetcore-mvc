@@ -48,8 +48,17 @@ class ChannelProviderDeliveryReportRequestModelBinder : IModelBinder
 				request.Body.Position = 0;
 		}
 
+		// MVC's form value provider reads the body before binding runs, so rebuild it from the parsed form
+		// (form-signing providers such as Twilio need every posted field).
+		if (string.IsNullOrEmpty(content) && request.HasFormContentType)
+		{
+			var form = await request.ReadFormAsync().ConfigureAwait(false);
+			content = string.Join("&", form.SelectMany(f => f.Value.Select(v => Uri.EscapeDataString(f.Key) + "=" + Uri.EscapeDataString(v ?? string.Empty))));
+		}
+
 		var adaptorContext = new DefaultRequestAdaptorContext(request, content);
 
+		DeliveryReportRequestValidationException? lastValidationRejection = null;
 		foreach (var adaptor in _adaptorInstances)
 		{
 			try
@@ -61,11 +70,20 @@ class ChannelProviderDeliveryReportRequestModelBinder : IModelBinder
 					return;
 				}
 			}
+			catch (DeliveryReportRequestValidationException ex)
+			{
+				// another registration of the same provider (e.g. a second account) may own this request.
+				lastValidationRejection = ex;
+			}
 			catch
 			{
 				//Eat any unexpected adaptor exceptions
 			}
 		}
+
+		if (lastValidationRejection != null)
+			bindingContext.ModelState.TryAddModelException(bindingContext.ModelName, lastValidationRejection);
+
 		bindingContext.Result = ModelBindingResult.Failed();
 	}
 }

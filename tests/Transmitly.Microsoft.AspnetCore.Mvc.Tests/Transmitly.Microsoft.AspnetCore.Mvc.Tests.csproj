@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net10.0;net9.0;net8.0;net6.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="coverlet.collector" Version="10.1.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Moq" Version="4.21.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="4.5.2" />
+		<PackageReference Include="MSTest.TestFramework" Version="4.5.2" />
+	</ItemGroup>
+	<!-- Test.Sdk 18 and MSTest 4 dropped net6.0; these are the last versions that run it. -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8.0'" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0'" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" Condition="'$(TargetFramework)' == 'net10.0'" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.0" Condition="'$(TargetFramework)' == 'net6.0'" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Transmitly.Microsoft.AspnetCore.Mvc\Transmitly.Microsoft.AspnetCore.Mvc.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+	</ItemGroup>
+</Project>

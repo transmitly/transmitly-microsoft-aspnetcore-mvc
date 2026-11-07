@@ -144,15 +144,40 @@ namespace Transmitly.Microsoft.AspnetCore.Mvc.Tests
 			Assert.IsNull(fromHeader);
 		}
 
-		private static async Task<(HttpClient Client, Mock<ICommunicationsClient> Communications)> StartAsync(params IChannelProviderDeliveryReportRequestAdaptor[] adaptors)
+		[TestMethod]
+		public async Task EachInstanceWebhook_IsHandledByThatInstancesAdaptors()
+		{
+			var handledBy = new List<string>();
+			var factory = new TenantChannelProviderFactory(tenant => new FakeAdaptor(_ =>
+			{
+				handledBy.Add(tenant);
+				return [Report()];
+			}));
+			var (client, _) = await StartAsync(factory, app => app.Use(async (http, next) =>
+			{
+				TenantChannelProviderFactory.Current.Value = http.Request.Query["tenant"].ToString();
+				await next();
+			}));
+
+			await client.PostAsync(Url + "&tenant=a", Json("{}"));
+			await client.PostAsync(Url + "&tenant=b", Json("{}"));
+
+			Assert.AreEqual("a,b", string.Join(",", handledBy));
+		}
+
+		private static Task<(HttpClient Client, Mock<ICommunicationsClient> Communications)> StartAsync(params IChannelProviderDeliveryReportRequestAdaptor[] adaptors) =>
+			StartAsync(new FakeChannelProviderFactory(adaptors));
+
+		private static async Task<(HttpClient Client, Mock<ICommunicationsClient> Communications)> StartAsync(IChannelProviderFactory factory, Action<WebApplication>? configure = null)
 		{
 			var communications = new Mock<ICommunicationsClient>();
 			var builder = WebApplication.CreateBuilder();
 			builder.WebHost.UseTestServer();
-			builder.Services.AddSingleton<IChannelProviderFactory>(new FakeChannelProviderFactory(adaptors));
+			builder.Services.AddSingleton(factory);
 			builder.Services.AddSingleton(communications.Object);
 			builder.Services.AddControllers(o => o.AddTransmitlyDeliveryReportModelBinders()).AddApplicationPart(typeof(DeliveryController).Assembly);
 			var app = builder.Build();
+			configure?.Invoke(app);
 			app.MapControllers();
 			await app.StartAsync();
 			return (app.GetTestClient(), communications);
@@ -185,6 +210,30 @@ namespace Transmitly.Microsoft.AspnetCore.Mvc.Tests
 
 			public Task<IChannelProviderDeliveryReportRequestAdaptor> ResolveDeliveryReportRequestAdaptorAsync(IDeliveryReportRequestAdaptorRegistration registration) =>
 				Task.FromResult(adaptors[((Registration)registration).Index]);
+
+			public Task<IReadOnlyCollection<IChannelProviderRegistration>> GetAllAsync() => throw new NotSupportedException();
+
+			public Task<IChannelProviderDispatcher?> ResolveDispatcherAsync(IChannelProviderRegistration channelProvider, IChannelProviderDispatcherRegistration channelProviderDispatcherRegistration) => throw new NotSupportedException();
+		}
+
+		/// <summary>
+		/// Serves the current tenant's webhook adaptor, the way a multi-tenant host's factory would.
+		/// </summary>
+		private sealed class TenantChannelProviderFactory(Func<string, IChannelProviderDeliveryReportRequestAdaptor> adaptorFor) : IChannelProviderFactory
+		{
+			public static readonly AsyncLocal<string?> Current = new();
+
+			private sealed record Registration(string Tenant) : IDeliveryReportRequestAdaptorRegistration
+			{
+				public Type Type => typeof(FakeAdaptor);
+				public object? Configuration => null;
+			}
+
+			public Task<IReadOnlyCollection<IDeliveryReportRequestAdaptorRegistration>> GetAllDeliveryReportRequestAdaptorsAsync() =>
+				Task.FromResult<IReadOnlyCollection<IDeliveryReportRequestAdaptorRegistration>>(new[] { new Registration(Current.Value ?? "none") });
+
+			public Task<IChannelProviderDeliveryReportRequestAdaptor> ResolveDeliveryReportRequestAdaptorAsync(IDeliveryReportRequestAdaptorRegistration registration) =>
+				Task.FromResult(adaptorFor(((Registration)registration).Tenant));
 
 			public Task<IReadOnlyCollection<IChannelProviderRegistration>> GetAllAsync() => throw new NotSupportedException();
 

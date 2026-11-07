@@ -14,6 +14,7 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Text;
@@ -21,22 +22,14 @@ using System.Threading.Tasks;
 using Transmitly.ChannelProvider.Configuration;
 using Transmitly.Delivery;
 using System.Linq;
-using System.Collections.Generic;
 
 namespace Transmitly.Microsoft.Aspnet.Mvc;
 
 class ChannelProviderDeliveryReportRequestModelBinder : IModelBinder
 {
-	private readonly List<Lazy<IChannelProviderDeliveryReportRequestAdaptor>> _adaptorInstances;
-
-	public ChannelProviderDeliveryReportRequestModelBinder(IChannelProviderFactory adaptor)
-	{
-		var adaptors = AsyncHelper.RunSync(adaptor.GetAllDeliveryReportRequestAdaptorsAsync);
-		_adaptorInstances = [.. adaptors.Select(s => new Lazy<IChannelProviderDeliveryReportRequestAdaptor>(AsyncHelper.RunSync(() => adaptor.ResolveDeliveryReportRequestAdaptorAsync(s))))];
-	}
-
 	public async Task BindModelAsync(ModelBindingContext bindingContext)
 	{
+		var factory = bindingContext.HttpContext.RequestServices.GetRequiredService<IChannelProviderFactory>();
 		var request = bindingContext.HttpContext.Request;
 		string? content = null;
 		if (request.Body.CanRead)
@@ -59,11 +52,12 @@ class ChannelProviderDeliveryReportRequestModelBinder : IModelBinder
 		var adaptorContext = new DefaultRequestAdaptorContext(request, content);
 
 		DeliveryReportRequestValidationException? lastValidationRejection = null;
-		foreach (var adaptor in _adaptorInstances)
+		foreach (var registration in await factory.GetAllDeliveryReportRequestAdaptorsAsync().ConfigureAwait(false))
 		{
+			var adaptor = await factory.ResolveDeliveryReportRequestAdaptorAsync(registration).ConfigureAwait(false);
 			try
 			{
-				var handled = await adaptor.Value.AdaptAsync(adaptorContext);
+				var handled = await adaptor.AdaptAsync(adaptorContext);
 				if (handled != null)
 				{
 					bindingContext.Result = ModelBindingResult.Success(new ChannelProviderDeliveryReportRequest(handled));

@@ -26,8 +26,8 @@
 	<!-- Test.Sdk 18 and MSTest 4 dropped net6.0; these are the last versions that run it. -->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.11.1" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.11.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8.0'" />

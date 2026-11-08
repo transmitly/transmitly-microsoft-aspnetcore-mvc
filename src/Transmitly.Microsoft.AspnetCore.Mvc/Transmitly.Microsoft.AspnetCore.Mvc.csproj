@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net10.0;net9.0;net8.0;net6.0;netcoreapp3.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
@@ -36,7 +36,7 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
 		<PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="All" />
-		<PackageReference Include="Transmitly" Version="0.4.6-2.49f3191" />
+		<PackageReference Include="Transmitly" Version="0.5.0" />
 	</ItemGroup>
 </Project>
 
